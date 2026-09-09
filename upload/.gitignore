@@ -1,0 +1,13 @@
+# SQLite database files (created at runtime; never commit real data)
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+database/*.sqlite
+database/*.sqlite-wal
+database/*.sqlite-shm
+
+# Backups produced by the admin DB-backup utility
+uploads/68kb-*.gz
+
+# Runtime logs
+includes/application/logs/log-*.php

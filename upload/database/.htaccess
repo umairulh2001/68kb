@@ -1,0 +1,13 @@
+# This folder holds the SQLite database file when the app runs on the
+# pdo_sqlite driver. The database (and its -wal / -shm sidecars) must never be
+# downloadable over the web. Deny all HTTP access to everything in this folder.
+
+<IfModule mod_authz_core.c>
+    # Apache 2.4+
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    # Apache 2.2 and older
+    Order allow,deny
+    Deny from all
+</IfModule>

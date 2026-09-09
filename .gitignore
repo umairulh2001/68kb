@@ -1,14 +1,22 @@
 .DS_Store
-upload/system/68kb/cache/*
-!upload/system/68kb/cache/index.html
-upload/uploads/*
-!upload/uploads/index.html
-upload/system/codeigniter/system/logs/*
-!upload/system/codeigniter/system/logs/index.html
 /*.buildpath
 /*.project
-upload/database/68kb.sqlite
 
-# Agent documentation
+# Runtime dirs — ship the index.html guard, ignore everything else
+upload/uploads/*
+!upload/uploads/index.html
+upload/includes/application/cache/*
+!upload/includes/application/cache/index.html
+upload/includes/application/logs/*
+!upload/includes/application/logs/index.html
+upload/includes/system/cache/*
+!upload/includes/system/cache/index.html
+upload/includes/system/logs/*
+!upload/includes/system/logs/index.html
+upload/database/*.sqlite
+upload/database/*.sqlite3
+upload/database/*.db
+
+# Agent / local-dev tooling (github repo's own, never tracked)
 .claude/
 docs/
