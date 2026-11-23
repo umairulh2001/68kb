@@ -101,15 +101,32 @@ class Kb extends Controller
 			return;
 		}
 
-		if ($this->auth->viewer_login($this->input->post('email'), $this->input->post('password')))
+		// Failed-login limiting (per email + IP). A locked combination is
+		// refused without checking the password.
+		$this->load->model('login_attempts_model');
+		$email = $this->input->post('email');
+		$ip = $this->input->ip_address();
+
+		$locked = $this->login_attempts_model->seconds_locked('viewer', $email, $ip);
+		if ($locked > 0)
 		{
+			$this->_show_login($this->login_attempts_model->lock_message($locked));
+			return;
+		}
+
+		if ($this->auth->viewer_login($email, $this->input->post('password')))
+		{
+			$this->login_attempts_model->clear('viewer', $email, $ip);
 			$goto = $this->session->userdata('viewer_redirected_from');
 			$this->session->unset_userdata('viewer_redirected_from');
 			redirect($goto ? $goto : 'home');
 		}
 		else
 		{
-			$this->_show_login(lang('kb_login_failed'));
+			list($locked, $remaining) = $this->login_attempts_model->record_failure('viewer', $email, $ip);
+			$this->_show_login($locked > 0
+				? $this->login_attempts_model->lock_message($locked)
+				: $this->login_attempts_model->remaining_message(lang('kb_login_failed'), $remaining));
 		}
 	}
 

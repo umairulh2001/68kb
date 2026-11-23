@@ -16,7 +16,3 @@ upload/includes/system/logs/*
 upload/database/*.sqlite
 upload/database/*.sqlite3
 upload/database/*.db
-
-# Agent / local-dev tooling (github repo's own, never tracked)
-.claude/
-docs/

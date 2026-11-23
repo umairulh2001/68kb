@@ -134,14 +134,32 @@ class Kb extends Controller
 	    }
 	    else
 	    {
-			$login = array($this->input->post('username'), $this->input->post('password'));
+			// Failed-login limiting (per username + IP). A locked combination
+			// is refused without checking the password.
+			$this->load->model('login_attempts_model');
+			$username = $this->input->post('username');
+			$ip = $this->input->ip_address();
+
+			$locked = $this->login_attempts_model->seconds_locked('admin', $username, $ip);
+			if ($locked > 0)
+			{
+				$data['error'] = $this->login_attempts_model->lock_message($locked);
+				$this->load->view('admin/default/login', $data);
+				return;
+			}
+
+			$login = array($username, $this->input->post('password'));
 			if($this->auth->process_login($login))
 			{
+				$this->login_attempts_model->clear('admin', $username, $ip);
 				redirect('admin');
 			}
 			else
 			{
-				$data['error']=$this->lang->line('kb_login_invalid');
+				list($locked, $remaining) = $this->login_attempts_model->record_failure('admin', $username, $ip);
+				$data['error'] = ($locked > 0)
+					? $this->login_attempts_model->lock_message($locked)
+					: $this->login_attempts_model->remaining_message($this->lang->line('kb_login_invalid'), $remaining);
 				$this->load->view('admin/default/login', $data);
 			}
 	    }	

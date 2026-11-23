@@ -6,7 +6,7 @@
 <title><?php echo $title; ?></title>
 <link href="<?php echo base_url();?>themes/front/default/css/960.css" rel="stylesheet" type="text/css" />
 <link href="<?php echo base_url();?>themes/front/default/css/style.css" rel="stylesheet" type="text/css" />
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
 <script type="text/javascript" src="<?php echo base_url();?>js/tooltip.js"></script>
 <script type="text/javascript" src="<?php echo base_url();?>js/jfav.js"></script>
 </head>

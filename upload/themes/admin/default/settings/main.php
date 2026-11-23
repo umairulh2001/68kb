@@ -57,6 +57,37 @@
 				<span class="small"><?php echo lang('kb_enable_viewer_login_hint'); ?></span>
 			</td>
 		</tr>
+		<tr>
+			<td class="row1"><label for="session_timeout"><?php echo lang('kb_session_timeout'); ?>:</label></td>
+			<td class="row1">
+				<input type="text" size="6" name="session_timeout" id="session_timeout" value="<?php echo (isset($settings['session_timeout'])) ? form_prep($settings['session_timeout']) : '120'; ?>" />
+				<span class="small"><?php echo lang('kb_session_timeout_hint'); ?></span>
+			</td>
+		</tr>
+		<tr>
+			<td class="row2"><label for="login_max_attempts"><?php echo lang('kb_login_max_attempts'); ?>:</label></td>
+			<td class="row2">
+				<input type="text" size="6" name="login_max_attempts" id="login_max_attempts" value="<?php echo (isset($settings['login_max_attempts'])) ? form_prep($settings['login_max_attempts']) : '5'; ?>" />
+				<span class="small"><?php echo lang('kb_login_max_attempts_hint'); ?></span>
+			</td>
+		</tr>
+		<tr>
+			<td class="row1"><label for="login_lockout_minutes"><?php echo lang('kb_login_lockout_minutes'); ?>:</label></td>
+			<td class="row1">
+				<input type="text" size="6" name="login_lockout_minutes" id="login_lockout_minutes" value="<?php echo (isset($settings['login_lockout_minutes'])) ? form_prep($settings['login_lockout_minutes']) : '15'; ?>" />
+				<span class="small"><?php echo lang('kb_login_lockout_minutes_hint'); ?></span>
+			</td>
+		</tr>
+		<tr>
+			<td class="row2"><label for="force_https"><?php echo lang('kb_force_https'); ?>:</label></td>
+			<td class="row2">
+				<select name="force_https" id="force_https">
+					<option value="Y"<?php echo (isset($settings['force_https']) && $settings['force_https'] == 'Y') ? ' selected' : ''; ?>><?php echo lang('kb_yes'); ?></option>
+					<option value="N"<?php echo ( ! isset($settings['force_https']) || $settings['force_https'] != 'Y') ? ' selected' : ''; ?>><?php echo lang('kb_no'); ?></option>
+				</select>
+				<span class="small"><?php echo lang('kb_force_https_hint'); ?></span>
+			</td>
+		</tr>
 		<?php $this->core_events->trigger('settings/form');?>
 	</table>
 	

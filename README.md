@@ -7,6 +7,9 @@ A lightweight knowledge base application — forked from [68kb/68kb](https://git
 - **SQLite or MySQL** — runs on either engine; SQLite needs no database server (a single file), MySQL suits larger/production setups
 - **Private mode (optional viewer login)** — gate the entire front-end behind a login; viewer accounts are admin-created (no self-signup) and it's **off by default**, so the knowledge base stays public unless you turn it on
 - **Reusable article variables** — define `{{var_name}}` values once in the admin area; each placeholder is substituted into article content for readers, so repeated values (support email, app version, a price or URL) are edited in one place
+- **Login protection** — repeated wrong passwords lock that username or email for a while (by default 5 attempts, then a 15-minute lockout, both adjustable in the admin settings); the login form warns how many attempts remain. It covers the admin login, the optional viewer login and the API
+- **Adjustable session timeout** — choose how many minutes of inactivity sign people out (default 2 hours), right from the admin settings
+- **HTTPS-friendly** — links, forms and redirects stay on https when the site is visited over https, and an optional **Force HTTPS** setting sends plain-http visitors to the secure address; the login cookie is protected from page scripts and is only sent over https on secure connections
 - **Improved UI and accessibility** — cleaner interface with better usability
 - **PHP 7.2+ compatibility** — updated constructors, removed deprecated functions
 - **Summernote WYSIWYG editor** — replaces the old js-quicktags toolbar

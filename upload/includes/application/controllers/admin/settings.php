@@ -78,16 +78,29 @@ class Settings extends Controller
 			return FALSE;
 		}
 		
-		// Seed the viewer-login toggle for installs that predate this feature so
-		// it always has a row to display/persist (works on MySQL and SQLite).
-		if ($this->db->where('short_name', 'enable_viewer_login')->count_all_results('settings') == 0)
+		// Seed settings rows for installs that predate these features so they
+		// always have a row to display/persist (works on MySQL and SQLite).
+		$seed = array(
+			'enable_viewer_login'   => array('Enable Viewer Login', 'N'),
+			'session_timeout'       => array('Login Session Timeout', '120'),
+			'login_max_attempts'    => array('Max Failed Login Attempts', '5'),
+			'login_lockout_minutes' => array('Login Lockout Minutes', '15'),
+			'force_https'           => array('Force HTTPS', 'N'),
+		);
+		foreach ($seed as $short_name => $row)
 		{
-			$this->db->insert('settings', array(
-				'short_name' => 'enable_viewer_login',
-				'name'       => 'Enable Viewer Login',
-				'value'      => 'N',
-				'auto_load'  => 'yes'
-			));
+			if ($this->db->where('short_name', $short_name)->count_all_results('settings') == 0)
+			{
+				$this->db->insert('settings', array(
+					'short_name' => $short_name,
+					'name'       => $row[0],
+					'value'      => $row[1],
+					'auto_load'  => 'yes'
+				));
+				// init_model cached the settings before this seed ran; add the
+				// value so the form shows it on this first visit.
+				$this->init_model->settings[$short_name] = $row[1];
+			}
 		}
 
 		$this->form_validation->set_rules('site_name', 'lang:kb_site_title', 'required');
@@ -95,6 +108,10 @@ class Settings extends Controller
 		$this->form_validation->set_rules('max_search', 'lang:kb_max_search', 'required|numeric');
 		$this->form_validation->set_rules('cache_time', 'lang:kb_cache_time', 'required|numeric');
 		$this->form_validation->set_rules('enable_viewer_login', 'lang:kb_enable_viewer_login', 'required');
+		$this->form_validation->set_rules('session_timeout', 'lang:kb_session_timeout', 'required|is_natural_no_zero|callback__in_range[5,43200]');
+		$this->form_validation->set_rules('login_max_attempts', 'lang:kb_login_max_attempts', 'required|is_natural_no_zero|callback__in_range[1,100]');
+		$this->form_validation->set_rules('login_lockout_minutes', 'lang:kb_login_lockout_minutes', 'required|is_natural_no_zero|callback__in_range[1,1440]');
+		$this->form_validation->set_rules('force_https', 'lang:kb_force_https', 'required|callback__force_https_check');
 		$this->core_events->trigger('settings/validation');
 		
 		if ($this->form_validation->run() == FALSE)
@@ -120,6 +137,54 @@ class Settings extends Controller
 		}
 	}
 	
+	// ------------------------------------------------------------------------
+
+	/**
+	* Validation callback for force_https: Y/N, and Y only over https.
+	*
+	* @access	public
+	* @param	string	submitted value
+	* @return	bool
+	*/
+	function _force_https_check($str)
+	{
+		if ($str != 'Y' && $str != 'N')
+		{
+			$this->form_validation->set_message('_force_https_check', lang('kb_force_https_invalid'));
+			return FALSE;
+		}
+		// Lockout guard: only allow turning it on from an https request, which
+		// proves https works and is detected on this server (else redirect loop).
+		if ($str == 'Y' && ! core_Config::is_https())
+		{
+			$this->form_validation->set_message('_force_https_check', lang('kb_force_https_need_https'));
+			return FALSE;
+		}
+		return TRUE;
+	}
+
+	// ------------------------------------------------------------------------
+
+	/**
+	* Validation callback: whole number within "min,max" (inclusive).
+	*
+	* @access	public
+	* @param	string	submitted value
+	* @param	string	"min,max"
+	* @return	bool
+	*/
+	function _in_range($str, $range)
+	{
+		list($min, $max) = array_map('intval', explode(',', $range));
+		$str = trim((string) $str);
+		if (ctype_digit($str) && (int) $str >= $min && (int) $str <= $max)
+		{
+			return TRUE;
+		}
+		$this->form_validation->set_message('_in_range', sprintf(lang('kb_in_range'), '%s', $min, $max));
+		return FALSE;
+	}
+
 	// ------------------------------------------------------------------------
 	
 	/**

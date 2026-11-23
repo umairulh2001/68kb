@@ -83,16 +83,28 @@ class Api extends controller
 	 */
 	private function check_access($username, $password)
 	{
+		// Shares the admin failed-login counter (username + IP), so the API
+		// can't be used to brute-force admin passwords around the lockout.
+		$this->load->model('login_attempts_model');
+		$ip = $this->input->ip_address();
+
+		if ($this->login_attempts_model->seconds_locked('admin', $username, $ip) > 0)
+		{
+			return false;
+		}
+
 		$this->db->where('username', $username);
 		$this->db->where('password', md5($password));
 		$query = $this->db->get('users');
-		
+
 		if ($query->num_rows() == 1)
 		{
+			$this->login_attempts_model->clear('admin', $username, $ip);
 			return true;
 		}
 		else
 		{
+			$this->login_attempts_model->record_failure('admin', $username, $ip);
 			return false;
 		}
 	}

@@ -452,6 +452,14 @@ class Install_model extends Model
 		$this->db->insert('settings', $data);
 		$data = array('short_name' => 'enable_viewer_login','name' => "Enable Viewer Login",'value' => 'N','auto_load' => 'yes');
 		$this->db->insert('settings', $data);
+		$data = array('short_name' => 'session_timeout','name' => "Login Session Timeout",'value' => '120','auto_load' => 'yes');
+		$this->db->insert('settings', $data);
+		$data = array('short_name' => 'login_max_attempts','name' => "Max Failed Login Attempts",'value' => '5','auto_load' => 'yes');
+		$this->db->insert('settings', $data);
+		$data = array('short_name' => 'login_lockout_minutes','name' => "Login Lockout Minutes",'value' => '15','auto_load' => 'yes');
+		$this->db->insert('settings', $data);
+		$data = array('short_name' => 'force_https','name' => "Force HTTPS",'value' => 'N','auto_load' => 'yes');
+		$this->db->insert('settings', $data);
 
 		return 'settings table installed...<br />';
 	}
@@ -555,6 +563,38 @@ class Install_model extends Model
 		if($this->dbforge->create_table('viewers'))
 		{
 			return 'viewers table installed...<br />';
+		}
+	}
+
+	// ------------------------------------------------------------------------
+
+	/**
+	* Install Login Attempts Table
+	*
+	* Failed-login counters/lockouts per scope (admin|viewer) + identifier + IP.
+	* Also self-provisioned at runtime by login_attempts_model.
+	*/
+	function table_login_attempts($drop)
+	{
+		if($drop)
+		{
+			$this->dbforge->drop_table('login_attempts');
+		}
+		$fields = array(
+				'id' => array('type' => 'INT','constraint' => 11,'unsigned' => TRUE,'auto_increment' => TRUE),
+		);
+		$this->dbforge->add_field($fields);
+		$this->dbforge->add_field("scope varchar(10) NOT NULL default ''");
+		$this->dbforge->add_field("identifier varchar(100) NOT NULL default ''");
+		$this->dbforge->add_field("ip varchar(45) NOT NULL default ''");
+		$this->dbforge->add_field("attempts int(11) NOT NULL default '0'");
+		$this->dbforge->add_field("last_failure int(11) NOT NULL default '0'");
+		$this->dbforge->add_field("locked_until int(11) NOT NULL default '0'");
+		$this->dbforge->add_key('id', TRUE);
+		$this->dbforge->add_key('identifier');
+		if($this->dbforge->create_table('login_attempts'))
+		{
+			return 'login_attempts table installed...<br />';
 		}
 	}
 

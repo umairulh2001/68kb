@@ -235,14 +235,25 @@ class Auth {
 	
 	/**
 	 *
-	 * Logs user out by destroying the session.
+	 * Logs the admin user out.
+	 *
+	 * Clears only the admin session keys (NOT sess_destroy) so a co-existing
+	 * viewer session in the same browser is preserved (mirrors viewer_logout).
+	 * unset_userdata() iterates $key => $val, so the keys must be array KEYS.
 	 *
 	 * @access	public
 	 * @return	TRUE
-	 */	
+	 */
 	function logout()
 	{
-		$this->CI->session->sess_destroy();
+		$this->CI->session->unset_userdata(array(
+			'logged_user'     => '',
+			'userid'          => '',
+			'username'        => '',
+			'cookie'          => '',
+			'level'           => '',
+			'redirected_from' => ''
+		));
 		return TRUE;
 	}
 
